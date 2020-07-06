@@ -4,6 +4,7 @@ from settings import GOOGLE_DRIVER
 
 
 def WebScrap():
+    print("Airtable webscrap: Started...")
     driver = GOOGLE_DRIVER
 
     driver.get('https://airtable.com/shrSAi6t5WFwqo3GM/tblEzPQS5fnc0FHYR/viweyymxOAtNvo7yH?blocks=bipZFzhJ7wHPv7x9z')
@@ -17,6 +18,9 @@ def WebScrap():
     viewMenuPopover.click()
     time.sleep(3)
     viewMenuPopover.find_element_by_class_name("menu").find_element_by_tag_name("li").click()
+    time.sleep(60 * 1)
+    print("Airtable webscrap: Completed...")
 
 # References
 # https://medium.com/@moungpeter/how-to-automate-downloading-files-using-python-selenium-and-headless-chrome-9014f0cdd196
+# https://www.programcreek.com/python/example/100025/selenium.webdriver.ChromeOptions

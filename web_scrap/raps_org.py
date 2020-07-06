@@ -1,7 +1,9 @@
-from settings import GOOGLE_DRIVER
-
+from settings import GOOGLE_DRIVER, DATA_PATH
+import time
 
 def WebScrap():
+    print("Raps webscrap: Started...")
+
     driver = GOOGLE_DRIVER
 
     driver.get('https://www.raps.org/news-and-articles/news-articles/2020/3/covid-19-vaccine-tracker')
@@ -28,6 +30,10 @@ def WebScrap():
         tableData.append(rowData)
 
     import csv
-    with open(r'../data/raps.org.tabledata.csv', 'w') as file:
+    with open(DATA_PATH + r'/raps.org.tabledata.csv', 'w') as file:
         writer = csv.writer(file, delimiter='|', lineterminator='\n')
         writer.writerows(tableData)
+
+    time.sleep(60 * 1)
+
+    print("Raps webscrap: Completed...")

@@ -2,27 +2,22 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import time
 
-import string
-from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.feature_extraction.text import CountVectorizer
-from nltk.corpus import stopwords
+from settings import GSHEET_CRED_FILE, GSHEET_SCOPE, GSHEET_FILE, GSHEET_WORKSHEET
+from settings import WHO_INPUT_DATA, RAPS_INPUT_DATA, AIRTABLE_INPUT_DATA
+from settings import VT_CORPS
 
-stopwords = stopwords.words('english')
+import get_cosine.get_cosine
 
 # use creds to create a client to interact with the Google Drive API
-scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', scope)
+creds = ServiceAccountCredentials.from_json_keyfile_name(GSHEET_CRED_FILE, GSHEET_SCOPE)
 client = gspread.authorize(creds)
 
 # Find a workbook by name and open the first sheet
 # Make sure you use the right name here.
-sheet = client.open("Data Engine Database").get_worksheet(6)
+sheet = client.open(GSHEET_FILE).get_worksheet(GSHEET_WORKSHEET)
 
 # Extract and print all of the values
 list_of_hashes = sheet.get_all_records()
-
-
-# sheetData = sheet.get_all_values()
 
 
 def GetDataFromFile(file, separator):
@@ -34,46 +29,21 @@ def GetDataFromFile(file, separator):
     return file_data
 
 
-def clean_string(text):
-    text = ''.join([word for word in text if word not in string.punctuation])
-    text = text.lower()
-    text = ' '.join([word for word in text.split() if word not in stopwords])
-    return text
-
-
-def cosine_sim_vectors(vec1, vec2):
-    vec1 = vec1.reshape(1, -1)
-    vec2 = vec2.reshape(1, -1)
-    return cosine_similarity(vec1, vec2)[0][0]
-
-
-def GetCosineSim(sentanceList):
-    try:
-        cleaned = list(map(clean_string, sentanceList))
-        vectorizer = CountVectorizer().fit_transform(cleaned)
-        vectors = vectorizer.toarray()
-        # csim = cosine_similarity(vectors)
-
-        return cosine_sim_vectors(vectors[0], vectors[1])
-    except:
-        return 0
-
-
 def GetRow(data, matchString, col):
     perfactMatch = None
     perfactMatchPer = 0
     for row in data:
-        try:
+        # try:
             # print(row[col] , matchString)
-            cosineSim = GetCosineSim([row[col], matchString])
+            cosineSim = get_cosine.get_cosine.GetCosineSim([row[col], matchString])
             if cosineSim > 0.70:
                 if perfactMatchPer < cosineSim:
                     perfactMatch = row
                     perfactMatchPer = cosineSim
             # if row[col] == matchString:
             #     return row
-        except:
-            print("Error:", row)
+        # except:
+        #     print("Error:", row)
 
     # print(perfactMatch, perfactMatchPer, cosineSim)
     return perfactMatch, perfactMatchPer
@@ -100,10 +70,19 @@ def UpdateGoogleSheet(settings, data, gSheet):
         currentSheetRow += 1
         currentIndex += 1
 
+print("WHO data loading start...")
+whoData = GetDataFromFile(WHO_INPUT_DATA, "|")
+print("WHO data loading complete...")
 
-whoData = GetDataFromFile("data/who.int.transformed_data.csv", "|")
-rapsData = GetDataFromFile("data/raps.org.tabledata.csv", "|")
-airTableData = GetDataFromFile("data/COVID-19 Tracker-Vaccines.csv", ",")
+print("RAPS data loading start...")
+rapsData = GetDataFromFile(RAPS_INPUT_DATA, "|")
+print("RAPS data loading complete...")
+
+print("AirTable data loading start...")
+airTableData = GetDataFromFile(AIRTABLE_INPUT_DATA, ",")
+print("AirTable data loading complete...")
+
+time.sleep(10)
 
 whoSettings = {
     'sheetCol': 2,
@@ -127,13 +106,26 @@ airTableSettings = {
     'dataColForUpdate': 3
 }
 
-# UpdateGoogleSheet(whoSettings, whoData, sheet)
-# UpdateGoogleSheet(rapsSettings, rapsData, sheet)
-UpdateGoogleSheet(airTableSettings, airTableData, sheet)
+print("Updating GSheet for WHO...")
+UpdateGoogleSheet(whoSettings, whoData, sheet)
+print("Updating GSheet for WHO Completed...")
 
+time.sleep(10)
+
+print("Updating GSheet for RAPS...")
+UpdateGoogleSheet(rapsSettings, rapsData, sheet)
+print("Updating GSheet for RAPS Completed...")
+
+time.sleep(10)
+
+print("Updating GSheet for AirTable...")
+UpdateGoogleSheet(airTableSettings, airTableData, sheet)
+print("Updating GSheet for AirTable Completed...")
+
+time.sleep(10)
 
 def GetPhaseCorp():
-    with open('vt_corp/phase.txt', 'r') as file:
+    with open(VT_CORPS, 'r') as file:
         data = file.readlines()
         phase = {}
         for row in data:
@@ -196,20 +188,7 @@ def UpdateGoogleSheetFinalStage(gSheet):
 
 
 phase = dict(GetPhaseCorp())
-UpdateGoogleSheetFinalStage(sheet)
-
-# {
-#     "1": ["phase1", "phase 1",
-#           "phasei", "phase i",
-#           "phase1/2", "phase 1/2", "phase 1 /2", "phase 1 / 2",
-#           "phase1/1", "phase 1/1", "phase 1 /1", "phase 1 / 1",
-#           ],
-#     "3": ["phase3", "phase 3",
-#           "phaseiii", "phase iii",
-#           "phase1/3", "phase 1/3", "phase 1 /3", "phase 1 / 3",
-#           ],
-#     "2": ["phase2", "phase 2",
-#           "phaseii", "phase ii",
-#           "phase1/2", "phase 1/2", "phase 1 /2", "phase 1 / 2",
-#           ],
-# }
+def MainGSheetUpdate():
+    print("Updating GSheet for Final Stage...")
+    UpdateGoogleSheetFinalStage(sheet)
+    print("Updating GSheet for Final Stage Completed...")

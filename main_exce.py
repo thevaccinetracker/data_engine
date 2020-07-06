@@ -5,13 +5,15 @@ airtable_com.WebScrap()
 raps_org.WebScrap()
 who_int.WebScrap()
 
-time.sleep(60 * 5)
+print("Sleep for 1 min")
+time.sleep(60 * 1)
 
 from preprocess_data import pdf_read_table
 
 pdf_read_table.TransformPDFData()
 
-time.sleep(60 * 2)
+print("Sleep for 1 min")
+time.sleep(60 * 1)
 
 import googleDb
 
