@@ -41,7 +41,9 @@ GSHEET_WORKSHEET = 6
 
 WHO_INPUT_DATA = "data/who.int.transformed_data.csv"
 RAPS_INPUT_DATA = "data/raps.org.tabledata.csv"
-AIRTABLE_INPUT_DATA = "data/COVID-19 Tracker-Vaccines.csv"
+# AIRTABLE_INPUT_DATA = "data/COVID-19 Tracker-Vaccines.csv"
+AIRTABLE_INPUT_DATA = "data/airtable.transformed_data.csv"
+
 
 VT_CORPS = 'vt_corp/phase.txt'
 STOPWORDS = 'english'

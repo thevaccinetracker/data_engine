@@ -8,9 +8,10 @@ who_int.WebScrap()
 print("Sleep for 1 min")
 time.sleep(60 * 1)
 
-from preprocess_data import pdf_read_table
+from preprocess_data import pdf_read_table,airtable
 
 pdf_read_table.TransformPDFData()
+airtable.PreProcessAirtableData()
 
 print("Sleep for 1 min")
 time.sleep(60 * 1)

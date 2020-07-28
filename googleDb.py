@@ -79,7 +79,7 @@ rapsData = GetDataFromFile(RAPS_INPUT_DATA, "|")
 print("RAPS data loading complete...")
 
 print("AirTable data loading start...")
-airTableData = GetDataFromFile(AIRTABLE_INPUT_DATA, ",")
+airTableData = GetDataFromFile(AIRTABLE_INPUT_DATA, "|")
 print("AirTable data loading complete...")
 
 time.sleep(10)
